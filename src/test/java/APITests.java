@@ -4,9 +4,11 @@ import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 import org.json.JSONArray;
 import org.testng.Assert;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 import static io.restassured.RestAssured.given;
@@ -17,18 +19,20 @@ public class APITests {
     Authorization auth = new Authorization();
 
     @BeforeTest
-    void generateToken() {
+    void generateToken() throws IOException {
 
-        auth.setClient_id(Constants.CLIENT_ID);
-        auth.setClient_secret(Constants.CLIENT_SECRET);
-        auth.setUsername(Constants.USERNAME);
-        auth.setPassword(Constants.PASSWORD);
+        ConfigProperties.initializePropertyFile();
+
+        auth.setClient_id(ConfigProperties.properties.getProperty("CLIENT_ID"));
+        auth.setClient_secret(ConfigProperties.properties.getProperty("CLIENT_SECRET"));
+        auth.setUsername(ConfigProperties.properties.getProperty("USERNAME"));
+        auth.setPassword(ConfigProperties.properties.getProperty("PASSWORD"));
 
         RequestSpecification httpRequest = given().
             contentType(ContentType.JSON).
             body(auth);
 
-        Response response = httpRequest.post("https://api.sumup.com/oauth");
+        Response response = httpRequest.post(ConfigProperties.properties.getProperty("baseURL") + "/oauth");
 
         String responseBody = response.getBody().asString();
 
@@ -42,7 +46,7 @@ public class APITests {
             header("Authorization", "Bearer " + auth.getAccess_token()).
             contentType(ContentType.JSON);
 
-        Response bankDetailsResponse = httpsBankDetailsRequest.get("https://api.sumup.com/v0.1/me/merchant-profile/bank-accounts");
+        Response bankDetailsResponse = httpsBankDetailsRequest.get(ConfigProperties.properties.getProperty("baseURL") + ConfigProperties.properties.getProperty("bankAccountsPath"));
 
         Assert.assertEquals(bankDetailsResponse.getStatusCode(), 200);
 
@@ -57,7 +61,7 @@ public class APITests {
                 header("Authorization", "Bearer " + auth.getAccess_token()).
                 contentType(ContentType.JSON);
 
-        Response bankDetailsResponse = httpsBankDetailsRequest.get("https://api.sumup.com/v0.1/me/merchant-profile/bank-accounts");
+        Response bankDetailsResponse = httpsBankDetailsRequest.get(ConfigProperties.properties.getProperty("baseURL") + ConfigProperties.properties.getProperty("bankAccountsPath"));
 
         Assert.assertEquals(bankDetailsResponse.getStatusCode(), 200);
 
@@ -72,7 +76,7 @@ public class APITests {
                 header("Authorization", "Bearer " + auth.getAccess_token()).
                 contentType(ContentType.JSON);
 
-        Response bankDetailsResponse = httpsBankDetailsRequest.get("https://api.sumup.com/v0.1/me/merchant-profile/bank-accounts");
+        Response bankDetailsResponse = httpsBankDetailsRequest.get(ConfigProperties.properties.getProperty("baseURL") + ConfigProperties.properties.getProperty("bankAccountsPath"));
 
         Assert.assertEquals(bankDetailsResponse.getStatusCode(), 200);
 
@@ -87,7 +91,7 @@ public class APITests {
                 header("Authorization", "Bearer " + auth.getAccess_token()).
                 contentType(ContentType.JSON);
 
-        Response bankDetailsResponse = httpsBankDetailsRequest.get("https://api.sumup.com/v0.1/me/merchant-profile/bank-accounts");
+        Response bankDetailsResponse = httpsBankDetailsRequest.get(ConfigProperties.properties.getProperty("baseURL") + ConfigProperties.properties.getProperty("bankAccountsPath"));
 
         Assert.assertEquals(bankDetailsResponse.getStatusCode(), 200);
 
@@ -102,7 +106,7 @@ public class APITests {
                 header("Authorization", "Bearer " + auth.getAccess_token()).
                 contentType(ContentType.JSON);
 
-        Response transactions = httpsBankDetailsRequest.get("https://api.sumup.com/v0.1/me/transactions/history");
+        Response transactions = httpsBankDetailsRequest.get(ConfigProperties.properties.getProperty("baseURL") + ConfigProperties.properties.getProperty("transactionsHistoryPath"));
 
         Assert.assertEquals(transactions.getStatusCode(), 200);
 
